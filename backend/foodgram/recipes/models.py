@@ -27,8 +27,7 @@ class Recipe(models.Model):
         Ingredient,
         through='RecipeIngredient',
         through_fields=('recipe', 'ingredient'),
-        related_name='indredients'
-        )
+        related_name='indredients')
     image = models.ImageField(upload_to='recipes/')
 
 
