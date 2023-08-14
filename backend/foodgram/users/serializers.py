@@ -116,7 +116,7 @@ class TokenSerializer(serializers.Serializer):
     confirmation_code = serializers.CharField(max_length=24)
 
 
-class SubShowSerializer(UserShowSerializer):
+class SubShowSerializer(serializers.Serializer):
     email = serializers.ReadOnlyField(source='following.email')
     id = serializers.ReadOnlyField(source='following.id')
     username = serializers.ReadOnlyField(source='following.username')
@@ -124,18 +124,6 @@ class SubShowSerializer(UserShowSerializer):
     last_name = serializers.ReadOnlyField(source='following.last_name')
     is_subscribed = serializers.SerializerMethodField()
     recipes = serializers.SerializerMethodField()
-
-    class Meta:
-        model = User
-        fields = (
-            'email',
-            'id',
-            'username',
-            'first_name',
-            'last_name',
-            'is_subscribed',
-            'recipes',
-        )
 
     def get_is_subscribed(self, username):
         return True
