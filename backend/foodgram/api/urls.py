@@ -7,7 +7,7 @@ from api.views import (FavoriteViewSet, IngredientViewSet, RecipeViewSet,
 
 router = routers.DefaultRouter()
 router.register('tags', TagViewSet)
-router.register('recipes', RecipeViewSet)
+router.register(r'recipes', RecipeViewSet, basename='recipe')
 router.register('ingredients', IngredientViewSet)
 
 urlpatterns = [

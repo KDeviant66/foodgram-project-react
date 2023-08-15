@@ -13,7 +13,7 @@ class IngredientFilter(FilterSet):
         fields = ('name', )
 
 
-class AuthorTagFilter(FilterSet):
+class RecipeFilter(FilterSet):
     tags = filters.ModelMultipleChoiceFilter(
         field_name='tags__slug',
         to_field_name='slug',
