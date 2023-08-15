@@ -10,7 +10,8 @@ def get_shopping_list(user: User) -> io.BytesIO:
         recipe__shopping_cart__user=user).values(
         name=F('ingredient__name'),
         measurement_unit=F('ingredient__measurement_unit')
-        ).annotate(amount=Sum('amount'))
+        ).annotate(
+        amount=Sum('amount'))
     data = []
     for ingredient in ingredients:
         data.append(
