@@ -8,8 +8,8 @@ from users.models import User
 def get_shopping_list(user: User) -> io.BytesIO:
     ingredients = RecipeIngredient.objects.filter(
         recipe__shopping_cart__user=user).values(
-        name=F('ingredient__name'),
-        measurement_unit=F('ingredient__measurement_unit')
+            name=F('ingredient__name'),
+            measurement_unit=F('ingredient__measurement_unit')
             ).annotate(
             amount=Sum('amount')
     )
