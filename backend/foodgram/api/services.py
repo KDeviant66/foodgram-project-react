@@ -11,7 +11,8 @@ def get_shopping_list(user: User) -> io.BytesIO:
         name=F('ingredient__name'),
         measurement_unit=F('ingredient__measurement_unit')
         ).annotate(
-        amount=Sum('amount'))
+        amount=Sum('amount')
+        )
     data = []
     for ingredient in ingredients:
         data.append(
