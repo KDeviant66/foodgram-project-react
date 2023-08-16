@@ -7,7 +7,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from users.models import Follow
-from users.serializers import SubShowSerializer
+from users.serializers import SubscribeSerializer
 
 
 class CustomUserViewSet(UserViewSet):
@@ -41,7 +41,7 @@ class CustomUserViewSet(UserViewSet):
                     'errors': 'Вы уже подписаны на этого пользователя'
                 }
                 return Response(error, status=status.HTTP_400_BAD_REQUEST)
-            serializer = SubShowSerializer(obj, context={'request': request})
+            serializer = SubscribeSerializer(obj, context={'request': request})
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         if not follow.exists():
@@ -62,7 +62,7 @@ class CustomUserViewSet(UserViewSet):
             Follow.objects.filter(user=request.user)
         )
 
-        serializer = SubShowSerializer(
+        serializer = SubscribeSerializer(
             pages, many=True, context={'request': request}
         )
 

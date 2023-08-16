@@ -12,7 +12,7 @@ class UserShowSerializer(serializers.ModelSerializer):
     is_subscribed = serializers.SerializerMethodField(read_only=True)
 
     def get_is_subscribed(self, username):
-        user = self.context["request"].user
+        user = self.context['request'].user
         return (not user.is_anonymous
                 and Follow.objects.filter(
                     user=user,
@@ -111,12 +111,7 @@ class SignupSerializer(serializers.ModelSerializer):
         return data
 
 
-class TokenSerializer(serializers.Serializer):
-    username = serializers.CharField(max_length=150)
-    confirmation_code = serializers.CharField(max_length=24)
-
-
-class SubShowSerializer(serializers.Serializer):
+class SubscribeSerializer(serializers.Serializer):
     email = serializers.ReadOnlyField(source='following.email')
     id = serializers.ReadOnlyField(source='following.id')
     username = serializers.ReadOnlyField(source='following.username')

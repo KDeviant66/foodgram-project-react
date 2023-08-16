@@ -7,8 +7,6 @@ from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 from users.models import User
 
-from api.create_data import bulk_create_recipe_ingredient
-
 
 class TagSerializer(serializers.ModelSerializer):
 
@@ -25,22 +23,15 @@ class IngredientSerializer(serializers.ModelSerializer):
 
 
 class RecipeIngredientGetSerializer(serializers.ModelSerializer):
-    id = serializers.SerializerMethodField()
-    name = serializers.SerializerMethodField(source='get_name')
-    measurement_unit = serializers.SerializerMethodField()
+    id = serializers.ReadOnlyField(source='ingredient.id')
+    name = serializers.ReadOnlyField(source='ingredient.name')
+    measurement_unit = serializers.ReadOnlyField(
+        source='ingredient.measurement_unit'
+    )
 
     class Meta:
         model = RecipeIngredient
-        fields = ('id', "name", "measurement_unit", "amount")
-
-    def get_id(self, obj):
-        return obj.ingredient.id
-
-    def get_name(self, obj, source='name'):
-        return getattr(obj.ingredient, source)
-
-    def get_measurement_unit(self, obj):
-        return obj.ingredient.measurement_unit
+        fields = ('id', 'name', 'measurement_unit', 'amount')
 
 
 class RecipeIngredientPostSerializer(serializers.ModelSerializer):
@@ -55,7 +46,8 @@ class RecipeIngredientPostSerializer(serializers.ModelSerializer):
 
 class UserDetailSerializer(serializers.ModelSerializer):
     is_subscribed = serializers.SerializerMethodField(
-        method_name='is_subscribed')
+        method_name='is_subscribed'
+    )
 
     class Meta:
         model = User
@@ -145,12 +137,12 @@ class RecipePostSerializer(serializers.ModelSerializer):
             tag=tag
         ) for tag in tags_set])
 
-        bulk_create_recipe_ingredient(ingredients, recipe)
-        # RecipeIngredient.objects.bulk_create([RecipeIngredient(
-        #     ingredient=ingredient['id'],
-        #     recipe=recipe,
-        #     amount=ingredient['amount']
-        # ) for ingredient in ingredients ])
+
+        RecipeIngredient.objects.bulk_create([RecipeIngredient(
+             ingredient=ingredient['id'],
+             recipe=recipe,
+             amount=ingredient['amount']
+         ) for ingredient in ingredients ])
         return recipe
 
     @transaction.atomic
@@ -168,12 +160,11 @@ class RecipePostSerializer(serializers.ModelSerializer):
         instance.ingredients.all().delete()
 
         ingredients = validated_data.get('ingredients')
-        bulk_create_recipe_ingredient(ingredients, instance)
-        # RecipeIngredient.objects.bulk_create([RecipeIngredient(
-        #     ingredient=ingredient['id'],
-        #     recipe=instance,
-        #     amount=ingredient['amount']
-        # ) for ingredient in ingredients ])
+        RecipeIngredient.objects.bulk_create([RecipeIngredient(
+             ingredient=ingredient['id'],
+             recipe=instance,
+             amount=ingredient['amount']
+         ) for ingredient in ingredients ])
         instance.save()
         return instance
 

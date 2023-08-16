@@ -7,11 +7,11 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
 
-class BaseViewSet(ModelViewSet):
+class CreateDeleteRecipeViewSet(ModelViewSet):
     model = None
     serializer_class = None
 
-    def create(self, request, *args, **kvargs):
+    def create(self, request, *args, **kwargs):
         recipe_id = int(self.kwargs['recipes_id'])
         recipe = get_object_or_404(Recipe, id=recipe_id)
         instance = self.model.objects.create(user=request.user)

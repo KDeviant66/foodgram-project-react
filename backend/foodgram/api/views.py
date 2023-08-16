@@ -7,7 +7,7 @@ from rest_framework import permissions, status
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
-from api.base_class import BaseViewSet
+from api.base_class import CreateDeleteRecipeViewSet
 from api.filters import RecipeFilter
 from api.permissions import IsAdminOrReadOnly, IsAuthorOrReadOnly
 from api.serializers import (FavoriteSerializer, IngredientSerializer,
@@ -72,13 +72,13 @@ class RecipeViewSet(ModelViewSet):
                         headers=headers)
 
 
-class FavoriteViewSet(BaseViewSet):
+class FavoriteViewSet(CreateDeleteRecipeViewSet):
     model = Favorite
     permission_classes = (permissions.IsAuthenticated,)
     serializer_class = FavoriteSerializer
 
 
-class ShoppingCartViewSet(BaseViewSet):
+class ShoppingCartViewSet(CreateDeleteRecipeViewSet):
     model = ShoppingCart
     pagination_class = PagePagination
     permission_classes = (permissions.IsAuthenticated,)
