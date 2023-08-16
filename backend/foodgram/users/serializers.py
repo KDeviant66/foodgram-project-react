@@ -1,14 +1,15 @@
 from api.serializers import RecipeGetSerializer
+from djoser.serializers import UserSerializer
 from rest_framework import serializers
 
 from users.models import Follow, User
 
 
-class UserShowSerializer(serializers.ModelSerializer):
-    email = serializers.EmailField(required=True)
-    username = serializers.CharField(max_length=150, required=True)
-    first_name = serializers.CharField(max_length=150, required=True)
-    last_name = serializers.CharField(max_length=150, required=True)
+class UserShowSerializer(UserSerializer):
+    #email = serializers.EmailField(required=True)
+    #username = serializers.CharField(max_length=150, required=True)
+    #first_name = serializers.CharField(max_length=150, required=True)
+    #last_name = serializers.CharField(max_length=150, required=True)
     is_subscribed = serializers.SerializerMethodField(read_only=True)
 
     def get_is_subscribed(self, username):
