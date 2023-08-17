@@ -70,7 +70,6 @@ class RecipeViewSet(ModelViewSet):
                         status=status.HTTP_200_OK,
                         headers=headers)
 
-
 class FavoriteViewSet(CreateDeleteRecipeViewSet):
     model = Favorite
     permission_classes = (permissions.IsAuthenticated,)
