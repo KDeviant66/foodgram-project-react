@@ -11,7 +11,7 @@ from api.base_class import CreateDeleteRecipeViewSet
 from api.filters import RecipeFilter
 from api.permissions import IsAdminOrReadOnly, IsAuthorOrReadOnly
 from api.serializers import (FavoriteSerializer, IngredientSerializer,
-                             RecipeGetSerializer, RecipePostSerializer,
+                             RecipeSerializer,
                              ShoppingCartSerializer, TagSerializer)
 from api.services import get_shopping_list
 
@@ -40,35 +40,8 @@ class RecipeViewSet(ModelViewSet):
     permission_classes = (IsAuthorOrReadOnly,)
     filterset_class = RecipeFilter
     filter_backends = (DjangoFilterBackend,)
+    serializer_class = RecipeSerializer
 
-    def get_serializer_class(self):
-        if self.request.method == 'GET':
-            return RecipeGetSerializer
-        return RecipePostSerializer
-
-    def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
-
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        serializer = RecipeGetSerializer(instance=serializer.instance)
-        return Response(serializer.data,
-                        status=status.HTTP_201_CREATED)
-
-    def update(self, request, *args, **kwargs):
-        partial = kwargs.pop('partial', False)
-        instance = self.get_object()
-        serializer = self.get_serializer(instance,
-                                         partial=partial)
-        serializer.is_valid(raise_exception=True)
-        self.perform_update(serializer)
-        serializer = RecipeGetSerializer(instance=serializer.instance)
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data,
-                        status=status.HTTP_200_OK,
-                        headers=headers)
 
 class FavoriteViewSet(CreateDeleteRecipeViewSet):
     model = Favorite

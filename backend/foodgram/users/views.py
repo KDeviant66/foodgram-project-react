@@ -7,7 +7,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from users.models import Follow
-from users.serializers import SubscribeSerializer
+from users.serializers import SubscribeSerializer, SubscribeAuthorSerializer
 
 
 class CustomUserViewSet(UserViewSet):
@@ -22,35 +22,17 @@ class CustomUserViewSet(UserViewSet):
     )
     def subscribe(self, request, id=None):
         user = get_object_or_404(User, id=id)
-        follow = Follow.objects.filter(
-            user=request.user,
-            following=user
-        )
-        if request.method == 'POST':
-            if user == request.user:
-                error = {
-                    'errors': 'Нельзя подписаться на самого себя'
-                }
-                return Response(error, status=status.HTTP_400_BAD_REQUEST)
-            obj, created = Follow.objects.get_or_create(
-                user=request.user,
-                following=user
-            )
-            if not created:
-                error = {
-                    'errors': 'Вы уже подписаны на этого пользователя'
-                }
-                return Response(error, status=status.HTTP_400_BAD_REQUEST)
-            serializer = SubscribeSerializer(obj, context={'request': request})
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-        if not follow.exists():
-            error = {
-                'errors': 'Вы не подписаны на этого пользователя'
-            }
-            return Response(error, status=status.HTTP_400_BAD_REQUEST)
-        follow.delete()
+        if request.method == 'POST':
+            serializer = SubscribeAuthorSerializer(data={'user': request.user.id, 'following': user.id})
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        Follow.objects.filter(user=request.user, following=user).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
 
     @action(
         detail=False,

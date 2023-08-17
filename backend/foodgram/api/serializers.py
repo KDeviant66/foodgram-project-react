@@ -2,7 +2,7 @@ from django.db import transaction
 from django.shortcuts import get_object_or_404
 from drf_extra_fields.fields import Base64ImageField
 from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
-                            ShoppingCart, Tag, TagRecipe)
+                            ShoppingCart, Tag)
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 from users.models import User
@@ -22,7 +22,7 @@ class IngredientSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'measurement_unit')
 
 
-class RecipeIngredientGetSerializer(serializers.ModelSerializer):
+class RecipeIngredientSerializer(serializers.ModelSerializer):
     id = serializers.ReadOnlyField(source='ingredient.id')
     name = serializers.ReadOnlyField(source='ingredient.name')
     measurement_unit = serializers.ReadOnlyField(
@@ -33,15 +33,6 @@ class RecipeIngredientGetSerializer(serializers.ModelSerializer):
         model = RecipeIngredient
         fields = ('id', 'name', 'measurement_unit', 'amount')
 
-
-class RecipeIngredientPostSerializer(serializers.ModelSerializer):
-    id = serializers.PrimaryKeyRelatedField(
-        queryset=Ingredient.objects.all()
-    )
-
-    class Meta:
-        model = RecipeIngredient
-        fields = ('id', 'amount')
 
 
 class UserDetailSerializer(serializers.ModelSerializer):
@@ -67,34 +58,62 @@ class UserDetailSerializer(serializers.ModelSerializer):
             and obj.subscribing.filter(user=user).exists()
         )
 
+class RecipeSerializer(serializers.ModelSerializer):
 
-class RecipeGetSerializer(serializers.ModelSerializer):
+    tags = TagSerializer(many=True, read_only=True)
     author = UserDetailSerializer(read_only=True)
-    tags = TagSerializer(read_only=True, many=True)
-    ingredients = RecipeIngredientGetSerializer(
-        read_only=True,
-        many=True,
-        source='recipe_ingredients'
+    ingredients =  RecipeIngredientSerializer(
+        source='recipe_ingredients', many=True, read_only=True
     )
-    is_favorited = serializers.SerializerMethodField(
-        method_name='get_is_favorited')
-    is_in_shopping_cart = serializers.SerializerMethodField(
-        method_name='get_is_in_shopping_cart')
+    is_favorited = serializers.SerializerMethodField()
+    is_in_shopping_cart = serializers.SerializerMethodField()
+    name = serializers.CharField(
+        required=True, max_length=200
+    )
+    image = Base64ImageField()
+    text = serializers.CharField(required=True)
+    cooking_time = serializers.IntegerField(
+        required=True
+    )
 
     class Meta:
         model = Recipe
         fields = (
-            'id',
-            'tags',
-            'author',
-            'ingredients',
-            'name',
-            'image',
-            'text',
-            'cooking_time',
-            'is_favorited',
-            'is_in_shopping_cart'
+            'id', 'tags', 'author', 'ingredients', 'is_favorited',
+            'is_in_shopping_cart', 'name', 'image', 'text', 'cooking_time'
         )
+
+    def bulk_create_recipe_ingredients(self, ingredients, recipe):
+
+        for ingredient_item in ingredients:
+            RecipeIngredient.objects.bulk_create(
+                [RecipeIngredient(
+                    ingredient_id=ingredient_item['id'],
+                    recipe=recipe,
+                    amount=ingredient_item['amount']
+                )]
+            )
+
+    @transaction.atomic
+    def create(self, validated_data):
+
+        image = validated_data.pop('image')
+        ingredients = validated_data.pop('ingredients')
+        tags = validated_data.pop('tags')
+        recipe = Recipe.objects.create(image=image, **validated_data)
+        recipe.tags.set(tags)
+        self.bulk_create_recipe_ingredients(ingredients, recipe)
+        recipe.save()
+        return recipe
+
+    @transaction.atomic
+    def update(self, recipe, validated_data):
+
+        recipe.ingredients.clear()
+        self.bulk_create_recipe_ingredients(validated_data.pop('ingredients'), recipe)
+        tags = validated_data.pop('tags')
+        recipe.tags.set(tags)
+        return super().update(recipe, validated_data)
 
     def get_is_favorited(self, obj):
         request = self.context.get('request')
@@ -103,7 +122,7 @@ class RecipeGetSerializer(serializers.ModelSerializer):
         return Favorite.objects.filter(
             user=request.user, recipe=obj
         ).exists()
-
+    
     def get_is_in_shopping_cart(self, obj):
         request = self.context.get('request')
         if request is None or request.user.is_anonymous:
@@ -111,69 +130,19 @@ class RecipeGetSerializer(serializers.ModelSerializer):
         return ShoppingCart.objects.filter(
             user=request.user, recipe=obj
         ).exists()
-
-
-class RecipePostSerializer(serializers.ModelSerializer):
-    author = UserDetailSerializer(read_only=True)
-    tags = serializers.PrimaryKeyRelatedField(
-        queryset=Tag.objects.all(),
-        many=True)
-    ingredients = RecipeIngredientPostSerializer(many=True)
-    image = Base64ImageField()
-
-    class Meta:
-        model = Recipe
-        fields = ('ingredients', 'tags', 'image', 'author', 'name', 'text',
-                  'cooking_time')
-        lookup_field = 'author'
-
-
-    def bulk_create_recipe_ingredient(self, ingredients, instance): 
-        RecipeIngredient.objects.bulk_create([RecipeIngredient( 
-                                              ingredient=ingredient['id'],
-                                              recipe=instance, 
-                                              amount=ingredient['amount'] 
-                                              )for ingredient in ingredients])
-
-
-    @transaction.atomic
-    def create(self, validated_data):
-        tags_set = validated_data.pop('tags')
-        ingredients = validated_data.pop('ingredients')
-        recipe = Recipe.objects.create(**validated_data)
-        TagRecipe.objects.bulk_create([TagRecipe(
-            recipe=recipe,
-            tag=tag
-        ) for tag in tags_set])
-
-        self.bulk_create_recipe_ingredient(ingredients, recipe)
-        return recipe 
-
-    @transaction.atomic
-    def update(self, instance, validated_data):
-        instance.image = validated_data.get('image', instance.image)
-        instance.name = validated_data.get('name', instance.name)
-        instance.text = validated_data.get('text', instance.text)
-        instance.cooking_time = validated_data.get(
-            'cooking_time', instance.cooking_time
-        )
-        instance.tags.clear()
-        tags_data = self.initial_data.get('tags')
-        instance.tags.set(tags_data)
-        RecipeIngredient.objects.filter(recipe=instance).all().delete()
-        instance.ingredients.all().delete()
-
-        ingredients = validated_data.get('ingredients')
-        self.bulk_create_recipe_ingredient(ingredients, instance)
-        instance.save()
-        return instance 
-
+    
+    
     def validate(self, data):
+
         ingredients = self.initial_data.get('ingredients')
         ingredients_list = [ingredient['id'] for ingredient in ingredients]
         if len(ingredients_list) != len(set(ingredients_list)):
             raise serializers.ValidationError(
                 'Ингредиенты нее должны повторяться'
+            )
+        if not ingredients:
+            raise serializers.ValidationError(
+                {'ingredients': 'Нужен хотя бы 1 ингредиент'}
             )
         return data
 
