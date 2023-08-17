@@ -162,18 +162,11 @@ class RecipePostSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         ingredients = self.initial_data.get('ingredients')
-        ingredient_list = []
-        for ingredient_item in ingredients:
-            ingredient = get_object_or_404(Ingredient,
-                                           id=ingredient_item['id'])
-            if ingredient in ingredient_list:
-                raise serializers.ValidationError('Ингредиент должен '
-                                                  'быть уникальным')
-            ingredient_list.append(ingredient)
-            if int(ingredient_item['amount']) < 1:
-                raise serializers.ValidationError({
-                    'ingredients': ('Число ингредиентов должно быть больше 1')
-                })
+        ingredients_list = [ingredient['id'] for ingredient in ingredients]
+        if len(ingredients_list) != len(set(ingredients_list)):
+            raise serializers.ValidationError(
+                'Ингредиенты нее должны повторяться'
+            )
         return data
 
 
