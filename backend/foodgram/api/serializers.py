@@ -7,7 +7,6 @@ from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 from users.models import User
 
-from api.create_data import bulk_create_recipe_ingredient
 
 class TagSerializer(serializers.ModelSerializer):
 
@@ -128,6 +127,15 @@ class RecipePostSerializer(serializers.ModelSerializer):
                   'cooking_time')
         lookup_field = 'author'
 
+
+    def bulk_create_recipe_ingredient(self, ingredients, instance): 
+        RecipeIngredient.objects.bulk_create([RecipeIngredient( 
+                                              ingredient=ingredient['id'],
+                                              recipe=instance, 
+                                              amount=ingredient['amount'] 
+                                              )for ingredient in ingredients])
+
+
     @transaction.atomic
     def create(self, validated_data):
         tags_set = validated_data.pop('tags')
@@ -138,7 +146,7 @@ class RecipePostSerializer(serializers.ModelSerializer):
             tag=tag
         ) for tag in tags_set])
 
-        bulk_create_recipe_ingredient(ingredients, recipe)
+        self.bulk_create_recipe_ingredient(ingredients, recipe)
         return recipe 
 
     @transaction.atomic
@@ -156,7 +164,7 @@ class RecipePostSerializer(serializers.ModelSerializer):
         instance.ingredients.all().delete()
 
         ingredients = validated_data.get('ingredients')
-        bulk_create_recipe_ingredient(ingredients, instance) 
+        self.bulk_create_recipe_ingredient(ingredients, instance)
         instance.save()
         return instance 
 
