@@ -5,7 +5,7 @@ from rest_framework import serializers
 from users.models import Follow, User
 
 
-class UserSerializer(UserCreateSerializer):
+class CustomUserSerializer(UserCreateSerializer):
 
     class Meta(UserCreateSerializer.Meta):
         model = User
