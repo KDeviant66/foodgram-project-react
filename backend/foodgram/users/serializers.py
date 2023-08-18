@@ -1,11 +1,9 @@
 from api.serializers import RecipeSerializer
-from djoser.serializers import UserSerializer, UserCreateSerializer
+from djoser.serializers import UserCreateSerializer, UserSerializer
 from rest_framework import serializers
 
 from users.models import Follow, User
 
-from rest_framework.response import Response
-from django.shortcuts import get_object_or_404
 
 class UserSerializer(UserCreateSerializer):
 
@@ -44,7 +42,7 @@ class UserShowSerializer(UserSerializer):
             'is_subscribed',
         )
 
-    
+
 class SubscribeSerializer(serializers.Serializer):
     email = serializers.ReadOnlyField(source='following.email')
     id = serializers.ReadOnlyField(source='following.id')
@@ -54,7 +52,7 @@ class SubscribeSerializer(serializers.Serializer):
     is_subscribed = serializers.SerializerMethodField()
     recipes = serializers.SerializerMethodField()
 
-    def get_is_subscribed(self, username): 
+    def get_is_subscribed(self, username):
         return True
 
     def get_recipes(self, data):
@@ -75,9 +73,9 @@ class SubscribeAuthorSerializer(serializers.ModelSerializer):
         following = data['following']
 
         if user == following:
-            raise serializers.ValidationError("Нельзя подписаться на самого себя")
+            raise serializers.ValidationError("Нельзя подписаться на себя")
 
         if Follow.objects.filter(user=user, following=following).exists():
-            raise serializers.ValidationError("Вы уже подписаны на этого пользователя")
+            raise serializers.ValidationError("Ты уже подписан на этого юзера")
 
         return data

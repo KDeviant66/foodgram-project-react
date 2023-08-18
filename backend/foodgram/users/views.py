@@ -7,7 +7,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from users.models import Follow
-from users.serializers import SubscribeSerializer, SubscribeAuthorSerializer
+from users.serializers import SubscribeAuthorSerializer, SubscribeSerializer
 
 
 class CustomUserViewSet(UserViewSet):
@@ -24,15 +24,22 @@ class CustomUserViewSet(UserViewSet):
         user = get_object_or_404(User, id=id)
 
         if request.method == 'POST':
-            serializer = SubscribeAuthorSerializer(data={'user': request.user.id, 'following': user.id})
+            serializer = SubscribeAuthorSerializer(
+                data={'user': request.user.id, 'following': user.id}
+            )
             if serializer.is_valid():
                 serializer.save()
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                return Response(
+                    serializer.data,
+                    status=status.HTTP_201_CREATED
+                )
+            return Response(
+                serializer.errors,
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
         Follow.objects.filter(user=request.user, following=user).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-
 
     @action(
         detail=False,

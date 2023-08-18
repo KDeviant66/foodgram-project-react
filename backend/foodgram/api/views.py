@@ -3,16 +3,15 @@ from django.shortcuts import HttpResponse
 from django_filters.rest_framework import DjangoFilterBackend
 from foodgram.pagination import PagePagination
 from recipes.models import Favorite, Ingredient, Recipe, ShoppingCart, Tag
-from rest_framework import permissions, status
-from rest_framework.response import Response
+from rest_framework import permissions
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
 from api.base_class import CreateDeleteRecipeViewSet
 from api.filters import RecipeFilter
 from api.permissions import IsAdminOrReadOnly, IsAuthorOrReadOnly
 from api.serializers import (FavoriteSerializer, IngredientSerializer,
-                             RecipeSerializer,
-                             ShoppingCartSerializer, TagSerializer)
+                             RecipeSerializer, ShoppingCartSerializer,
+                             TagSerializer)
 from api.services import get_shopping_list
 
 
