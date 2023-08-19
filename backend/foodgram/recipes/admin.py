@@ -18,8 +18,3 @@ class IngredientAdmin(admin.ModelAdmin):
     pass
 
 
-@admin.register(models.Tag)
-class TagAdmin(admin.ModelAdmin):
-    list_display = ('name', 'color', 'slug')
-    list_filter = ('name', 'color')
-    search_fields = ('name', 'color')
