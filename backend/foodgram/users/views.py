@@ -1,13 +1,13 @@
-from api.paginations import PagePagination
 from django.shortcuts import get_object_or_404
 from djoser.views import UserViewSet
-from recipes.models import User
 from rest_framework import permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
+from api.paginations import PagePagination
+from api.serializers import SubscribeAuthorSerializer, SubscribeSerializer
+from recipes.models import User
 from users.models import Follow
-from users.serializers import SubscribeAuthorSerializer, SubscribeSerializer
 
 
 class CustomUserViewSet(UserViewSet):

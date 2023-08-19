@@ -1,18 +1,25 @@
 from django.contrib import admin
 
-from recipes.models import Ingredient, Recipe, RecipeIngredient
+from . import models
 
 
 class RecipeIngredientInline(admin.TabularInline):
-    model = RecipeIngredient
+    model = models.RecipeIngredient
     extra = 1
 
 
-@admin.register(Recipe)
+@admin.register(models.Recipe)
 class TagAdmin(admin.ModelAdmin):
     inlines = (RecipeIngredientInline, )
 
 
-@admin.register(Ingredient)
+@admin.register(models.Ingredient)
 class IngredientAdmin(admin.ModelAdmin):
     pass
+
+
+@admin.register(models.Tag)
+class TagAdmin(admin.ModelAdmin):
+    list_display = ('name', 'color', 'slug')
+    list_filter = ('name', 'color')
+    search_fields = ('name', 'color')

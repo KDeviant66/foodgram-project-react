@@ -1,18 +1,21 @@
+from django.db.models.expressions import Exists, OuterRef, Value
 from django.http import FileResponse
 from django.shortcuts import HttpResponse
 from django_filters.rest_framework import DjangoFilterBackend
-from foodgram.pagination import PagePagination
-from recipes.models import Favorite, Ingredient, Recipe, ShoppingCart, Tag
+from rest_framework import filters
 from rest_framework import permissions
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
-from api.base_class import CreateDeleteRecipeViewSet
-from api.filters import RecipeFilter
-from api.permissions import IsAdminOrReadOnly, IsAuthorOrReadOnly
-from api.serializers import (FavoriteSerializer, IngredientSerializer,
-                             RecipeSerializer, ShoppingCartSerializer,
-                             TagSerializer)
-from api.services import get_shopping_list
+
+from .base_class import CreateDeleteRecipeViewSet
+from .filters import RecipeFilter
+from .paginations import PagePagination
+from .permissions import IsAdminOrReadOnly, IsAuthorOrReadOnly
+from .serializers import (FavoriteSerializer, IngredientSerializer,
+                          RecipeSerializer, ShoppingCartSerializer,
+                          TagSerializer)
+from .services import get_shopping_list
+from recipes.models import Favorite, Ingredient, Recipe, ShoppingCart, Tag
 
 
 class TagViewSet(ReadOnlyModelViewSet):
@@ -25,21 +28,40 @@ class IngredientViewSet(ReadOnlyModelViewSet):
     serializer_class = IngredientSerializer
     pagination_class = None
     permission_classes = (IsAdminOrReadOnly,)
-
-    def get_queryset(self):
-        name = self.request.GET.get('name')
-        if name:
-            return self.queryset.filter(name__istartswith=name)
-        return self.queryset
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['name']
 
 
 class RecipeViewSet(ModelViewSet):
-    queryset = Recipe.objects.all()
     pagination_class = PagePagination
     permission_classes = (IsAuthorOrReadOnly,)
     filterset_class = RecipeFilter
     filter_backends = (DjangoFilterBackend,)
     serializer_class = RecipeSerializer
+
+    def get_queryset(self):
+        if not self.request.user.is_authenticated:
+            return Recipe.objects.annotate(
+                is_in_shopping_cart=Value(False),
+                is_favorited=Value(False),
+            ).select_related(
+                'author'
+            ).prefetch_related(
+                'tags',
+            )
+
+        return Recipe.objects.annotate(
+            is_favorited=Exists(Favorite.objects.filter(
+                user=self.request.user, recipe=OuterRef('id'))
+            ),
+            is_in_shopping_cart=Exists(ShoppingCart.objects.filter(
+                user=self.request.user, recipe=OuterRef('id'))
+            )
+        ).select_related(
+            'author'
+        ).prefetch_related(
+            'tags',
+        )
 
 
 class FavoriteViewSet(CreateDeleteRecipeViewSet):
