@@ -16,5 +16,3 @@ class TagAdmin(admin.ModelAdmin):
 @admin.register(models.Ingredient)
 class IngredientAdmin(admin.ModelAdmin):
     pass
-
-
