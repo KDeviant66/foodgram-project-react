@@ -6,11 +6,10 @@ volumes:
   static:
   media:
 
-
 services:
 
   db:
-    image: postgres:13.10
+    image: postgres:13
     env_file: .env
     restart: always
     volumes:
@@ -19,23 +18,23 @@ services:
 
   backend:
     build:
-      context: /../backend/foodgram/
+      context: ./backend/foodgram
       dockerfile: Dockerfile
     env_file: .env
     restart: always
     volumes:
-      - static:/backend_static
-      - media:/media
+      - static:/app/static/
+      - media:/app/media/
     depends_on:
       - db
 
   frontend:
     env_file: .env
     build:
-      context: /../frontend/
+      context: ./frontend
       dockerfile: Dockerfile
     volumes:
-      - ../frontend/:/app/result_build/ 
+      - ./frontend/:/app/result_build/ 
 
   gateway:
     image: nginx:1.19.3

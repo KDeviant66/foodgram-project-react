@@ -6,37 +6,36 @@ volumes:
   static:
   media:
 
-
 services:
 
   db:
-    image: postgres:13.10
+    image: postgres:13
     env_file: .env
     restart: always
     volumes:
-      - pg_data:/var/lib/postgresql/data
+      - pg_data:/var/lib/postgresql/data/
 
   backend:
     image: kdeviant66/foodgram_backend
     env_file: .env
     restart: always
     volumes:
-      - static:/app/static
-      - media:/app/media
+      - static:/app/static/
+      - media:/app/media/
     depends_on:
       - db
 
   frontend:
     image: kdeviant66/foodgram_frontend
     volumes:
-      - ../frontend/:/app/result_build/
+      - ./frontend/:/app/result_build/
     depends_on:
       - backend
 
   gateway:
     image: nginx:1.19.3
     ports:
-      - 8000:80
+      - "8000:80"
     depends_on:
       - frontend
     restart: always
