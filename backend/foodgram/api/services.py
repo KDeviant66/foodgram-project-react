@@ -18,5 +18,4 @@ def get_shopping_list(user: User) -> io.BytesIO:
             f'{ingredient["amount"]} '
             f'{ingredient["measurement_unit"]}'
         )
-    content = 'Список покупок:\n\n' + '\n'.join(data)
-    return content
+    return ('Список покупок:\n\n' + '\n'.join(data))
