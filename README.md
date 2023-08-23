@@ -1,52 +1,59 @@
-ip: 158.160.78.31
+**ip**: 158.160.78.31
 
 
-login : anastas.93@mail.ru
+**login** : anastas.93@mail.ru
 
 
-password: Deviant66
+**password**: Deviant66
 
 
 
-Foodgram - это сайт для обмена рецептами. 
+### Foodgram - это сайт для обмена рецептами. 
 
-Возможности для пользователя:
+ Возможности для пользователя :point_down:
+ 
 
-- Публиковать свои любимые рецепты
-- Просматривать рецепты других пользователей 
-- Добавлять любимые рецепты в избранное
-- Подписываться на других пользователей
-- Составлять свой список покупок с ингредиентами понравившегося рецепта
+:white_check_mark: Публиковать свои любимые рецепты
 
-Подготовка к запуску
-На сервере создайте папку проекта - foodgram и скопируйте в нее файл docker-compose.production.yml.
+:white_check_mark: Просматривать рецепты других пользователей 
 
-В папке с проектом создайте файл .env и заполните его своими данными:
+:white_check_mark: Добавлять любимые рецепты в избранное
 
-POSTGRES_ON - True для работы с БД PostgreSQL | False для работы с БД SQLite
+:white_check_mark: Подписываться на других пользователей
 
-POSTGRES_USER - имя пользователя для доступа к базе данных
+:white_check_mark: Составлять свой список покупок с ингредиентами понравившегося рецепта
 
-POSTGRES_PASSWORD - пароль для доступа к базе данных
+### Подготовка к запуску :point_down:
 
-POSTGRES_DB - имя базы данных
+:point_right: На сервере создайте папку проекта - foodgram и скопируйте в нее файл docker-compose.production.yml.
 
-SECRET_KEY - секретный ключ для Django
+:point_right: В папке с проектом создайте файл .env и заполните его своими данными:
 
-DEBUG - True/False - режим отладки Django
+**POSTGRES_ON** - True для работы с БД PostgreSQL | False для работы с БД SQLite
 
-ALLOWED_HOSTS - список разрешенных хостов
+**POSTGRES_USER** - имя пользователя для доступа к базе данных
 
-DB_HOST - имя хоста базы данных
+**POSTGRES_PASSWORD** - пароль для доступа к базе данных
 
-DB_PORT - порт базы данных
+**POSTGRES_DB** - имя базы данных
 
-Запуск проекта:
+**SECRET_KEY** - секретный ключ для Django
 
-Находясь в папке с проектом скачайте образы и запустите проект командами:
+**DEBUG** - True/False - режим отладки Django
+
+**ALLOWED_HOSTS** - список разрешенных хостов
+
+**DB_HOST** - имя хоста базы данных
+
+**DB_PORT** - порт базы данных
+
+### Запуск проекта :point_down:
+
+:point_right: Находясь в папке с проектом скачайте образы и запустите проект командами:
+
 sudo docker compose -f docker-compose.production.yml up -d
 
-Выполните миграции, соберите статические файлы бэкенда:
+:point_right: Выполните миграции, соберите статические файлы бэкенда:
 
 sudo docker compose -f docker-compose.production.yml exec backend python manage.py migrate
 
@@ -55,6 +62,6 @@ sudo docker compose -f docker-compose.production.yml exec backend mkdir -p backe
 sudo docker compose -f docker-compose.production.yml exec backend python manage.py collectstatic
 
 
-Создайте суперпользователя:
+:point_right: Создайте суперпользователя:
 
 sudo docker compose -f docker-compose.production.yml exec backend python manage.py createsuperuser
