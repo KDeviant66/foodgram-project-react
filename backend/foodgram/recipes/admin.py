@@ -40,16 +40,3 @@ class RecipeIngredientAdmin(admin.ModelAdmin):
     list_filter = ('recipe', 'ingredient')
     search_fields = ('recipe', 'ingredient')
 
-
-@admin.register(models.Favorite)
-class FavoriteAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'user', 'recipe')
-    list_filter = ('user', 'recipe')
-    search_fields = ('user', 'recipe')
-
-
-@admin.register(models.ShoppingCart)
-class ShoppingCartAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'user', 'recipe')
-    list_filter = ('user', 'recipe')
-    search_fields = ('user', 'recipe')
