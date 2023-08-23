@@ -39,4 +39,3 @@ class RecipeIngredientAdmin(admin.ModelAdmin):
     list_display = ('pk', 'recipe', 'ingredient', 'amount')
     list_filter = ('recipe', 'ingredient')
     search_fields = ('recipe', 'ingredient')
-
