@@ -164,7 +164,7 @@ class RecipeSerializer(serializers.ModelSerializer):
         if int(cooking_time) < 1:
             raise serializers.ValidationError(
                 'Время приготовления >= 1!')
-        
+
         data['cooking_time'] = cooking_time
         data['author'] = self.context.get('request').user
         data['ingredients'] = ingredients
