@@ -160,7 +160,12 @@ class RecipeSerializer(serializers.ModelSerializer):
                     {'tags': 'Теги не должны повторяться'}
                 )
             tags_list.append(tag)
-
+        cooking_time = self.initial_data.get('cooking_time')
+        if int(cooking_time) < 1:
+            raise serializers.ValidationError(
+                'Время приготовления >= 1!')
+        
+        data['cooking_time'] = cooking_time
         data['author'] = self.context.get('request').user
         data['ingredients'] = ingredients
         data['tags'] = tags
