@@ -1,4 +1,4 @@
-**ip**: 158.160.78.31
+**domen**: kdeviant.sytes.net
 
 
 **login** : anastas.93@mail.ru

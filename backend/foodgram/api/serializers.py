@@ -143,6 +143,10 @@ class RecipeSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 {'ingredients': 'Нужен хотя бы 1 ингредиент'}
             )
+        for ingredient in ingredients:
+            if int(ingredient.get('amount')) < 1:
+                raise serializers.ValidationError(
+                    'Количество ингредиента >= 1!')
         tags = self.initial_data.get('tags')
         if not tags:
             raise serializers.ValidationError(
