@@ -2,7 +2,6 @@ from django.db.models.expressions import Exists, OuterRef, Value
 from django.http import FileResponse
 from django.shortcuts import HttpResponse
 from django_filters.rest_framework import DjangoFilterBackend
-#from rest_framework import filters
 from rest_framework import permissions
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
@@ -28,8 +27,6 @@ class IngredientViewSet(ReadOnlyModelViewSet):
     serializer_class = IngredientSerializer
     pagination_class = None
     permission_classes = (IsAdminOrReadOnly,)
-    #filter_backends = [filters.SearchFilter]
-    #search_fields = ['name']
     filterset_class = IngredientFilter
 
 
